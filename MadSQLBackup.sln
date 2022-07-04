@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MadSQLBackup", "MadSQLBackup.csproj", "{3BC97495-8114-4226-AF62-76582241C202}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MadSQLBackup", "MadSQLBackup.csproj", "{AF410395-5F1F-4F72-8130-3E6541A2A329}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3BC97495-8114-4226-AF62-76582241C202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BC97495-8114-4226-AF62-76582241C202}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BC97495-8114-4226-AF62-76582241C202}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BC97495-8114-4226-AF62-76582241C202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF410395-5F1F-4F72-8130-3E6541A2A329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF410395-5F1F-4F72-8130-3E6541A2A329}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF410395-5F1F-4F72-8130-3E6541A2A329}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF410395-5F1F-4F72-8130-3E6541A2A329}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {70C563BC-81C5-4DAA-BD73-FB61C77CCA56}
+		SolutionGuid = {752C7291-84CF-44F9-99A8-3D9CFD470277}
 	EndGlobalSection
 EndGlobal
