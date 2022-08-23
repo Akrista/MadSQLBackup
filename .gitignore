@@ -414,3 +414,7 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/powershell,visualstudio
 
 settings.json
+/node_modules/
+/public/build/
+
+.DS_Store
