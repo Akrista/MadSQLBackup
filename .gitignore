@@ -414,6 +414,7 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/powershell,visualstudio
 
 settings.json
+secret.xml
 /node_modules/
 /public/build/
 
