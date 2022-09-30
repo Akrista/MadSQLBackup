@@ -5,8 +5,6 @@
 $InvocationPath = Split-Path -Parent $($global:MyInvocation.MyCommand.Definition)
 #! Archivo de Config
 $SQLBackupConfig = $InvocationPath + '\settings.json'
-$SQLCredentials = $InvocationPath + '\secret.xml'
-$SQLCredentials = Import-CliXml -Path $SQLCredentials
 
 #*===============================================================================
 #* Verificar Variables de Entorno
@@ -25,7 +23,7 @@ else {
     Write-Output "Proceso de instalación completado, continua el proceso de respaldo."
 }
 #! Definimos la carpeta que alojara nuestros Backups
-$BackupFolderName = $SQLBackupConfig.backupDirectory
+$BackupFolderName = $SQLBackupConfig.BackupFolderName
 #! Verificamos si existe la ruta que deseamos, en caso contrario, la creamos.
 if (Test-Path $BackupFolderName) {
     Write-Output "La carpeta de respaldos ya existe"
@@ -37,10 +35,40 @@ else {
     Write-Output "La carpeta de respaldo ha sido creada de manera exitosa"
 }
 
+if ([String]::IsNullOrWhiteSpace($SQLBackupConfig.user) -and [String]::IsNullOrWhiteSpace($SQLBackupConfig.password) -and [String]::IsNullOrWhiteSpace($SQLBackupConfig.hostname)) {
+    Write-Warning "Los secretos no han sido definidos"
+    Exit
+}
+else {
+    if ($SQLBackupConfig.EncryptionType -eq "DAPI") {
+
+        $UserSecureString = $SQLBackupConfig.user | ConvertTo-SecureString 
+        $PasswordSecureString = $SQLBackupConfig.password | ConvertTo-SecureString 
+        $HostnameSecureString = $SQLBackupConfig.hostname | ConvertTo-SecureString 
+        $UserConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserSecureString))
+        $PasswordConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PasswordSecureString))
+        $HostnameConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($HostnameSecureString))
+    }
+    else {
+        if ([String]::IsNullOrWhiteSpace($SQLBackupConfig.EncryptionKeyBytes)) {
+            Write-Warning "La clave de encriptación no ha sido definida"
+            Exit
+        }
+        else {
+            $UserSecureString = $SQLBackupConfig.user | ConvertTo-SecureString -Key $SQLBackupConfig.EncryptionKeyBytes
+            $PasswordSecureString = $SQLBackupConfig.password | ConvertTo-SecureString -Key $SQLBackupConfig.EncryptionKeyBytes
+            $HostnameSecureString = $SQLBackupConfig.hostname | ConvertTo-SecureString -Key $SQLBackupConfig.EncryptionKeyBytes
+            $UserConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserSecureString))
+            $PasswordConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PasswordSecureString))
+            $HostnameConnection = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($HostnameSecureString))
+        }
+    }
+}
+
 $ExcludeDatabases = $SQLBackupConfig.dbToExclude
 
 #! Invocamos la consola de comandos de SQL para conectarnos a la base de datos y obtener el nombre de las bases de datos que seran respaldadas
-$databases = Invoke-Sqlcmd -ServerInstance '127.0.0.1' -Credential $SQLCredentials -Query "select name from sys.databases"
+$databases = Invoke-Sqlcmd -ConnectionString "Server=$HostnameConnection;User ID=$UserConnection;Password=$PasswordConnection;" -Query "select name from sys.databases"
 #! Obtenemos el total de bases de datos que seran respaldadas
 $qDb = $databases.Length
 #! Posición del progreso
@@ -62,8 +90,7 @@ foreach ($database in ($databases)) {
     else {
         
         #! Respaldamos solamente las bases de datos que se encuentren en el servidor local, en un futuro se puede evaluar si se respalda desde un servidor remoto
-        Backup-SqlDatabase -ServerInstance '127.0.0.1' -Database $dbName -Credential $SQLCredentials -BackupFile "$BackupFolderName\$DBName.bak" -Verbose
-        tar cvzf "$BackupFolderName\$DBName.tar.gz" "$BackupFolderName\$DBName.bak"
+        Backup-SqlDatabase -ServerInstance '.' -Database $dbName -BackupFile "$BackupFolderName\$DBName.bak" -Verbose
         Write-Output "$dbName respaldada con exito" 
     }
     Write-Progress -Activity "Respaldando Bases de Datos" -Status "$pcomplete% ha sido Completado." -PercentComplete $pcomplete
